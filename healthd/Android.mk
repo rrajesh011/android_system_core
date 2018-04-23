@@ -149,9 +149,11 @@ endif
 
 LOCAL_HAL_STATIC_LIBRARIES := libhealthd
 
+ifneq ($(TARGET_CREATE_CHARGER_SYMLINK),false)
 # Symlink /charger to /sbin/charger
 LOCAL_POST_INSTALL_CMD := $(hide) mkdir -p $(TARGET_ROOT_OUT) \
     && ln -sf /sbin/charger $(TARGET_ROOT_OUT)/charger
+endif
 
 include $(BUILD_EXECUTABLE)
 
@@ -169,8 +171,13 @@ include $$(BUILD_PREBUILT)
 endef
 
 _img_modules :=
+ifeq ($(strip $(BOARD_HEALTHD_CUSTOM_CHARGER_RES)),)
+IMAGES_DIR := images
+else
+IMAGES_DIR := ../../../$(BOARD_HEALTHD_CUSTOM_CHARGER_RES)
+endif
 _images :=
-$(foreach _img, $(call find-subdir-subdir-files, "images", "*.png"), \
+$(foreach _img, $(call find-subdir-subdir-files, "$(IMAGES_DIR)", "*.png"), \
   $(eval $(call _add-charger-image,$(_img))))
 
 include $(CLEAR_VARS)
